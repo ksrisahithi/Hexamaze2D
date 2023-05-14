@@ -10,18 +10,15 @@ void initGL() {
 }
 
 void display() {
-	float h2y = sqrt(3.0f) * 0.1f + 0.025f;
 	glClear(GL_COLOR_BUFFER_BIT);
-	HGon h1(0.0f, 0.0f, 0.0f);
-	HGon h2(0.35f, h2y, 0.0f);
-	HGon h3(0.0f, 2.0f * h2y, 0.0f);
-	HGon h4(-0.35f, h2y, 0.0f);
-	HGon h5(0.0f, -2.0f * h2y, 0.0f);
-	h1.draw();
-	h2.draw();
-	h3.draw();
-	h4.draw();
-	h5.draw();
+	HGon hgons[27] = { HGon(-6,8),HGon(-4,8),HGon(-5,7),HGon(-3,-7),HGon(-4,6),
+		HGon(0,6),HGon(2,6),HGon(-3,5),HGon(-1,5),HGon(1,5),HGon(-4,4),HGon(-2,4),
+		HGon(0,4),HGon(2,4),HGon(-1,3),HGon(1,3),HGon(3,3),HGon(-2,2),HGon(0,2),
+		HGon(2,2),HGon(-3,1),HGon(-1,1),HGon(1,1),HGon(3,1),HGon(-2,0),HGon(0,0),HGon(2,0) };
+	for (HGon h : hgons )
+	{
+		h.draw();
+	}
 	glFlush();
 }
 
