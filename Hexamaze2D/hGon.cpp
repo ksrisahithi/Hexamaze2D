@@ -1,13 +1,14 @@
 #include<GL/glut.h>
 #include<math.h>
 
+extern float hWidth;
 class HGon {
 private:
-	float w = 0.2f;
-	float h = sqrtf(3.0f) * 0.5f * w;
-	float wt = 0.04f;
+	float h = sqrtf(3.0f) * 0.5f * hWidth;
+	float wt = hWidth * 0.2f;
 public:
 	int location[2];
+	bool explored = false;
 
 	HGon(int x, int y) {
 		this->location[0] = x;
@@ -15,21 +16,25 @@ public:
 	}
 
 	void draw() {
-		//float winW = glutGet(GLUT_INIT_WINDOW_WIDTH);
-		//float winH = glutGet(GLUT_INIT_WINDOW_HEIGHT);
 		glPushMatrix();
 		glTranslatef(
-			location[0] * (1.5f * w + (0.5f * wt * sqrtf(3.0f))),
+			location[0] * (1.5f * hWidth + (0.5f * wt * sqrtf(3.0f))),
 			location[1] * (h + 0.5f * wt), 0.0f
 		);
 		glBegin(GL_POLYGON);
-		glColor3f(1.0f, 1.0f, 1.0f);
-			glVertex2f(w * -0.5f,h);
-			glVertex2f(w * 0.5f, h);
-			glVertex2f(w, 0.0f);
-			glVertex2f(w * 0.5f, -h);
-			glVertex2f(w * -0.5f, -h);
-			glVertex2f(-w, 0.0f);
+		if (explored) {
+			glColor3f(1.0f, 1.0f, 1.0f);
+		}
+		else
+		{
+			glColor3f(0.5f, 0.5f, 0.5f);
+		}
+			glVertex2f(hWidth * -0.5f,h);
+			glVertex2f(hWidth * 0.5f, h);
+			glVertex2f(hWidth, 0.0f);
+			glVertex2f(hWidth * 0.5f, -h);
+			glVertex2f(hWidth * -0.5f, -h);
+			glVertex2f(-hWidth, 0.0f);
 		glEnd();
 		glPopMatrix();
 	}
