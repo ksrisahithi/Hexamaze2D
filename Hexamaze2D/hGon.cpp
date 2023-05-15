@@ -15,10 +15,13 @@ public:
 	}
 
 	void draw() {
-		float winW = glutGet(GLUT_INIT_WINDOW_WIDTH);
-		float winH = glutGet(GLUT_INIT_WINDOW_HEIGHT);
+		//float winW = glutGet(GLUT_INIT_WINDOW_WIDTH);
+		//float winH = glutGet(GLUT_INIT_WINDOW_HEIGHT);
 		glPushMatrix();
-		glTranslatef(location[0] * (1.5f * w + (2.0f * wt / sqrtf(3.0f))), location[1] * (h + 0.5f * wt), 0.0f);
+		glTranslatef(
+			location[0] * (1.5f * w + (0.5f * wt * sqrtf(3.0f))),
+			location[1] * (h + 0.5f * wt), 0.0f
+		);
 		glBegin(GL_POLYGON);
 		glColor3f(1.0f, 1.0f, 1.0f);
 			glVertex2f(w * -0.5f,h);

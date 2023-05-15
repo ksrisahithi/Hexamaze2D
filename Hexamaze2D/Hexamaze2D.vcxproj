@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Door.cpp" />
     <ClCompile Include="hGon.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>

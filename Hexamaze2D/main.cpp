@@ -1,6 +1,7 @@
 #include<Gl/glut.h>
 #include<math.h>
 #include "hGon.cpp"
+#include "Door.cpp"
 
 
 void initGL() {
@@ -15,10 +16,13 @@ void display() {
 		HGon(0,6),HGon(2,6),HGon(-3,5),HGon(-1,5),HGon(1,5),HGon(-4,4),HGon(-2,4),
 		HGon(0,4),HGon(2,4),HGon(-1,3),HGon(1,3),HGon(3,3),HGon(-2,2),HGon(0,2),
 		HGon(2,2),HGon(-3,1),HGon(-1,1),HGon(1,1),HGon(3,1),HGon(-2,0),HGon(0,0),HGon(2,0) };
-	for (HGon h : hgons )
-	{
+	for (HGon h : hgons) {
 		h.draw();
 	}
+	Door d1 = Door(0, 2, 0);
+	Door d2 = Door(1, 1, -1);
+	d1.draw();
+	d2.draw();
 	glFlush();
 }
 
