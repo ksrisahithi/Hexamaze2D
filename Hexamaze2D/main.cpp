@@ -6,33 +6,76 @@
 #include "hGon.cpp"
 #include "Door.cpp"
 
-const int KEY_UP = 72;
-const int KEY_DOWN = 80;
-const int KEY_LEFT = 75;
-const int KEY_RIGHT = 77;
-
 extern float hWidth;
 
+int
+	d0[6] = { -1,-1,0,-1,-1,-1 },
+	d1[6] = { -1,-1,-1,1,-1,-1 },
+	d2[6] = { -1,-1,2,-1,-1,0 },
+	d3[6] = { -1,-1,-1,3,-1,-1 },
+	d4[6] = { 1,-1,-1,6,-1,2 },
+	d5[6] = { -1,-1,-1,7,4,-1 },
+	d6[6] = { -1,-1,-1,-1,5,-1 },
+	d7[6] = { 3,-1,9,-1,8,-1 },
+	d8[6] = { -1,4,10,-1,-1,-1 },
+	d9[6] = { -1,5,-1,-1,11,-1 },
+	d10[6] = { 6,8,-1,-1,-1,-1 },
+	d11[6] = { -1,-1,12,15,-1,9 },
+	d12[6] = { 7,11,14,16,13,-1 },
+	d13[6] = { -1,-1,-1,17,-1,-1 },
+	d14[6] = { -1,13,-1,20,-1,12 },
+	d15[6] = { -1,-1,18,-1,14,-1 },
+	d16[6] = { -1,-1,-1,-1,19,-1 },
+	d17[6] = { 15,-1,-1,23,-1,-1 },
+	d18[6] = { 16,-1,-1,24,-1,-1 },
+	d19[6] = { 17,19,22,25,21,18 },
+	d20[6] = { -1,-1,26,-1,-1,-1 },
+	d21[6] = { 20,-1,-1,-1,-1,-1 },
+	d22[6] = { -1,21,-1,-1,-1,-1 },
+	d23[6] = { -1,-1,-1,-1,-1,22 },
+	d24[6] = { 23,-1,-1,-1,-1,26 },
+	d25[6] = { 24,-1,-1,-1,-1,-1 },
+	d26[6] = { 25,-1,-1,-1,-1,-1 }
+;
 HGon hgons[27] = {
-	HGon(-6,8),
-	HGon(-4,8), HGon(-5,7), HGon(-3,7), HGon(-4,6),
-	HGon(0,6), HGon(2,6), HGon(-3,5), HGon(-1,5),
-	HGon(1,5),HGon(-4,4),HGon(-2,4), HGon(0,4),
-	HGon(2,4),HGon(-1,3),HGon(1,3),HGon(3,3),
-	HGon(-2,2),HGon(0,2), HGon(2,2),HGon(-3,1),
-	HGon(-1,1),HGon(1,1),HGon(3,1),HGon(-2,0),
-	HGon(0,0),HGon(2,0)
+	HGon(-6,8,d0),
+	HGon(-4,8,d1),
+	HGon(-5,7,d2),
+	HGon(-3,7,d3),
+	HGon(-4,6,d4),
+	HGon(0,6,d5),
+	HGon(2,6,d6),
+	HGon(-3,5,d7),
+	HGon(-1,5,d8),
+	HGon(1,5,d9),
+	HGon(-4,4,d10),
+	HGon(-2,4,d11),
+	HGon(0,4,d12),
+	HGon(2,4,d13),
+	HGon(-1,3,d14),
+	HGon(1,3,d15),
+	HGon(3,3,d16),
+	HGon(-2,2,d17),
+	HGon(0,2,d18),
+	HGon(2,2,d19),
+	HGon(-3,1,d20),
+	HGon(-1,1,d21),
+	HGon(1,1,d22),
+	HGon(3,1,d23),
+	HGon(-2,0,d24),
+	HGon(0,0,d25),
+	HGon(2,0,d26)
 };
 
 Door doors[27] = {
-	Door(-11,15,1),
-	Door(-8,14,0), Door(-9,13,1), Door(-6,12,0), Door(-1,11,-1),
-	Door(3,11,-1), Door(-8,10,0), Door(0,10,0), Door(-7,9,-1),
-	Door(-5,9,1), Door(-1,9,1), Door(1,9,-1), Door(-3,7,1),
-	Door(-1,7,-1), Door(1,7,1), Door(-4,6,0), Door(0,6,0),
-	Door(4,6,0), Door(3,5,1), Door(5,5,-1), Door(-2,4,0),
-	Door(3,3,-1), Door(5,3,1), Door(-4,2,0), Door(0,2,0),
-	Door(4,2,0), Door(-5,1,1)
+	Door(-11,15,1,0,2),
+	Door(-8,14,0,1,4), Door(-9,13,1,2,4), Door(-6,12,0,3,7), Door(-1,11,-1,5,8),
+	Door(3,11,-1,6,9), Door(-8,10,0,4,10), Door(0,10,0,5,12), Door(-7,9,-1,7,10),
+	Door(-5,9,1,7,11), Door(-1,9,1,8,12), Door(1,9,-1,9,12), Door(-3,7,1,11,14),
+	Door(-1,7,-1,12,14), Door(1,7,1,12,16), Door(-4,6,0,11,17), Door(0,6,0,12,18),
+	Door(4,6,0,13,19), Door(3,5,1,15,19), Door(5,5,-1,16,19), Door(-2,4,0,14,21),
+	Door(3,3,-1,19,22), Door(5,3,1,19,23), Door(-4,2,0,17,24), Door(0,2,0,18,25),
+	Door(4,2,0,19,26), Door(-5,1,1,20,24)
 };
 
 float playerPosition[2] = { 0.0f, 0.0f };
@@ -40,19 +83,19 @@ float playerRotation = 0.0f;
 float playerSpeed = 0.02f;
 float playerRotSpeed = 3.0f;
 bool keyStates[256];
+int currentHex = 25;
+int currentDoor = -1;
 
 void initGL() {
 	// Set "clearing" or background color
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Black and opaque
-	glutFullScreen();
+	//glutFullScreen();
 	hgons[25].explored = true;
 	doors[24].explored = true;
 }
 
 void display() {
 	glClear(GL_COLOR_BUFFER_BIT);
-	glMatrixMode(GL_MODELVIEW);      // To operate on Model-View matrix
-	glLoadIdentity();                // Reset the model-view matrix
 	glPushMatrix();
 	glRotatef(-playerRotation, 0.0f, 0.0f, 1.0f);
 	glTranslatef(-playerPosition[0], -playerPosition[1], 0.0f);
@@ -63,7 +106,12 @@ void display() {
 			d.draw();
 		}
 	glPopMatrix();
-	glBegin(GL_POLYGON);
+	glPointSize(5.0f);
+	glBegin(GL_POINTS);
+	glColor3f(1.0f, 0.0f, 0.0f);
+	glVertex2f(0.0f, 0.0f);
+	glEnd();
+	/*glBegin(GL_POLYGON);
 	glColor3f(1.0f, 0.0f, 0.0f);
 	glVertex2f(-hWidth * 0.1f, -hWidth * 0.07f);
 	glVertex2f(hWidth * 0.1f, -hWidth * 0.07f);
@@ -74,11 +122,10 @@ void display() {
 	glVertex2f(-hWidth * 0.1f, -hWidth * 0.07f);
 	glVertex2f(hWidth * 0.1f, -hWidth * 0.07f);
 	glVertex2f(0.0f, hWidth * 0.23f);
-	glEnd();
+	glEnd();*/
 	
 	glFlush();
 	
-
 }
 
 /* Handler for window re-size event. Called back when the window first appears and
@@ -113,20 +160,57 @@ void keyboard(unsigned char key, int x, int y) {
 /* Callback handler for special keys */
 void specialKeys(int key, int x, int y) {
 	float rot = (90.0f - playerRotation) * 22.0f / 7.0f / 180.0f;
+	float temp[2] = { playerPosition[0] - playerSpeed * cos(rot),
+			playerPosition[1] + playerSpeed * sin(rot) };
 	switch (key)
 	{
 	case GLUT_KEY_UP:
-		playerPosition[0] -= playerSpeed * cos(rot);
-		playerPosition[1] += playerSpeed * sin(rot);
-		std::cout << "Player position - " << "X: " << playerPosition[0] << "Y: " << playerPosition[1] << ".\n";
+		
+		if (currentHex != -1 && hgons[currentHex].isInsideHex(temp)) {
+			playerPosition[0] -= playerSpeed * cos(rot);
+			playerPosition[1] += playerSpeed * sin(rot);
+			break;
+		}
+		for (int door : hgons[currentHex].doors) {
+			if (door != -1 && doors[door].isInsideDoor(temp)) {
+				//std::cout << "current hex: " << currentHex << ", current door: " << currentDoor;
+				playerPosition[0] -= playerSpeed * cos(rot);
+				playerPosition[1] += playerSpeed * sin(rot);
+				currentDoor = door;
+				currentHex = -1;
+				break;
+			}
+		}
+		if (currentDoor != -1 && doors[currentDoor].isInsideDoor(temp)) {
+			//std::cout << "inside door " << currentDoor;
+			playerPosition[0] -= playerSpeed * cos(rot);
+			playerPosition[1] += playerSpeed * sin(rot);
+			break;
+		}
+		if (hgons[doors[currentDoor].hex1].isInsideHex(temp)) {
+			std::cout << "inside hexagon " << doors[currentDoor].hex1;
+			playerPosition[0] -= playerSpeed * cos(rot);
+			playerPosition[1] += playerSpeed * sin(rot);
+			currentHex = doors[currentDoor].hex1;
+			currentDoor = -1;
+			break;
+		}
+		if (hgons[doors[currentDoor].hex2].isInsideHex(temp)) {
+			playerPosition[0] -= playerSpeed * cos(rot);
+			playerPosition[1] += playerSpeed * sin(rot);
+			currentHex = doors[currentDoor].hex2;
+			currentDoor = -1;
+			break;
+		}
+		//std::cout << "Player position - " << "X: " << playerPosition[0] << "Y: " << playerPosition[1] << ".\n";
 		break;
 	case GLUT_KEY_RIGHT:
 		playerRotation -= playerRotSpeed;
-		std::cout << "Player Rotation: " << playerRotation << ".\n";
+		//std::cout << "Player Rotation: " << playerRotation << ".\n";
 		break;
 	case GLUT_KEY_LEFT:
 		playerRotation += playerRotSpeed;
-		std::cout << "Player Rotation: " << playerRotation << ".\n";
+		//std::cout << "Player Rotation: " << playerRotation << ".\n";
 		break;
 	default:
 		break;

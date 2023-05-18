@@ -1,1 +1,1 @@
-float hWidth = 0.3f;
+float hWidth = 0.4f;

@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Door.cpp" />
+    <ClCompile Include="functions.cpp" />
     <ClCompile Include="globals.cpp" />
     <ClCompile Include="hGon.cpp" />
     <ClCompile Include="main.cpp" />
