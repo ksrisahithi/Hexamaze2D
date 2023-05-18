@@ -39,32 +39,13 @@ int
 ;
 HGon hgons[27] = {
 	HGon(-6,8,d0),
-	HGon(-4,8,d1),
-	HGon(-5,7,d2),
-	HGon(-3,7,d3),
-	HGon(-4,6,d4),
-	HGon(0,6,d5),
-	HGon(2,6,d6),
-	HGon(-3,5,d7),
-	HGon(-1,5,d8),
-	HGon(1,5,d9),
-	HGon(-4,4,d10),
-	HGon(-2,4,d11),
-	HGon(0,4,d12),
-	HGon(2,4,d13),
-	HGon(-1,3,d14),
-	HGon(1,3,d15),
-	HGon(3,3,d16),
-	HGon(-2,2,d17),
-	HGon(0,2,d18),
-	HGon(2,2,d19),
-	HGon(-3,1,d20),
-	HGon(-1,1,d21),
-	HGon(1,1,d22),
-	HGon(3,1,d23),
-	HGon(-2,0,d24),
-	HGon(0,0,d25),
-	HGon(2,0,d26)
+	HGon(-4,8,d1), HGon(-5,7,d2), HGon(-3,7,d3), HGon(-4,6,d4),
+	HGon(0,6,d5), HGon(2,6,d6), HGon(-3,5,d7), HGon(-1,5,d8),
+	HGon(1,5,d9), HGon(-4,4,d10), HGon(-2,4,d11), HGon(0,4,d12),
+	HGon(2,4,d13), HGon(-1,3,d14), HGon(1,3,d15), HGon(3,3,d16),
+	HGon(-2,2,d17), HGon(0,2,d18), HGon(2,2,d19), HGon(-3,1,d20),
+	HGon(-1,1,d21), HGon(1,1,d22), HGon(3,1,d23), HGon(-2,0,d24),
+	HGon(0,0,d25), HGon(2,0,d26)
 };
 
 Door doors[27] = {
@@ -78,19 +59,27 @@ Door doors[27] = {
 	Door(4,2,0,19,26), Door(-5,1,1,20,24)
 };
 
-float playerPosition[2] = { 0.0f, 0.0f };
+float h = sqrtf(3.0f) * 0.5f * hWidth;
+float wt = hWidth * 0.2f;
+
+float playerPosition[2] = {
+	0.0f,
+	(h + 0.5f * wt) * 2.0f
+	//0.0f
+};
 float playerRotation = 0.0f;
-float playerSpeed = 0.02f;
+float playerSpeed = 0.023f;
 float playerRotSpeed = 3.0f;
 bool keyStates[256];
-int currentHex = 25;
+int currentHex = 18;
 int currentDoor = -1;
 
 void initGL() {
 	// Set "clearing" or background color
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Black and opaque
 	//glutFullScreen();
-	hgons[25].explored = true;
+	hgons[18].explored = true;
+	//doors[16].explored = true;
 	doors[24].explored = true;
 }
 
@@ -165,41 +154,45 @@ void specialKeys(int key, int x, int y) {
 	switch (key)
 	{
 	case GLUT_KEY_UP:
-		
 		if (currentHex != -1 && hgons[currentHex].isInsideHex(temp)) {
+			std::cout << "current hex: " << currentHex << ", current door: " << currentDoor << "\n";
 			playerPosition[0] -= playerSpeed * cos(rot);
 			playerPosition[1] += playerSpeed * sin(rot);
 			break;
 		}
-		for (int door : hgons[currentHex].doors) {
-			if (door != -1 && doors[door].isInsideDoor(temp)) {
-				//std::cout << "current hex: " << currentHex << ", current door: " << currentDoor;
-				playerPosition[0] -= playerSpeed * cos(rot);
-				playerPosition[1] += playerSpeed * sin(rot);
-				currentDoor = door;
-				currentHex = -1;
-				break;
+		if (currentHex != -1) {
+			for (int door : hgons[currentHex].doors) {
+				if (door != -1 && doors[door].isInsideDoor(temp)) {
+					std::cout << "current hex: " << currentHex << ", current door: " << currentDoor << "\n";
+					playerPosition[0] -= playerSpeed * cos(rot);
+					playerPosition[1] += playerSpeed * sin(rot);
+					currentDoor = door;
+					currentHex = -1;
+					break;
+				}
 			}
 		}
 		if (currentDoor != -1 && doors[currentDoor].isInsideDoor(temp)) {
-			//std::cout << "inside door " << currentDoor;
+			std::cout << "current hex: " << currentHex << ", current door: " << currentDoor << "\n";
 			playerPosition[0] -= playerSpeed * cos(rot);
 			playerPosition[1] += playerSpeed * sin(rot);
 			break;
 		}
-		if (hgons[doors[currentDoor].hex1].isInsideHex(temp)) {
-			std::cout << "inside hexagon " << doors[currentDoor].hex1;
+		if (currentDoor != -1 && hgons[doors[currentDoor].hex1].isInsideHex(temp)) {
+			std::cout << "inside 4th if.";
+			//std::cout << "inside hexagon " << doors[currentDoor].hex1;
 			playerPosition[0] -= playerSpeed * cos(rot);
 			playerPosition[1] += playerSpeed * sin(rot);
 			currentHex = doors[currentDoor].hex1;
 			currentDoor = -1;
 			break;
 		}
-		if (hgons[doors[currentDoor].hex2].isInsideHex(temp)) {
+		if (currentDoor != -1 && hgons[doors[currentDoor].hex2].isInsideHex(temp)) {
 			playerPosition[0] -= playerSpeed * cos(rot);
 			playerPosition[1] += playerSpeed * sin(rot);
 			currentHex = doors[currentDoor].hex2;
 			currentDoor = -1;
+			std::cout << "inside last if";
 			break;
 		}
 		//std::cout << "Player position - " << "X: " << playerPosition[0] << "Y: " << playerPosition[1] << ".\n";

@@ -12,13 +12,13 @@ private:
 	}
 
 public:
-	int location[2];
+	float location[2];
 	bool explored = false;
 	int doors[6];
 
 	HGon(int x, int y, int d[6]) {
-		this->location[0] = x;
-		this->location[1] = y;
+		this->location[0] = x * (1.5f * hWidth + (0.5f * wt * sqrtf(3.0f)));
+		this->location[1] = y * (h + 0.5f * wt);
 		for (int i = 0; i < 6; i++) {
 			this->doors[i] = d[i];
 		}
@@ -58,17 +58,14 @@ public:
 
 	void draw() {
 		glPushMatrix();
-		glTranslatef(
-			location[0] * (1.5f * hWidth + (0.5f * wt * sqrtf(3.0f))),
-			location[1] * (h + 0.5f * wt), 0.0f
-		);
+		glTranslatef(location[0], location[1], 0.0f);
 		glBegin(GL_POLYGON);
 		if (explored) {
 			glColor3f(1.0f, 1.0f, 1.0f);
 		}
 		else
 		{
-			glColor3f(0.5f, 0.5f, 0.5f);
+			glColor3f(0.75f, 0.75f, 0.75f);
 		}
 		glVertex2f(hWidth * -0.5f, h);
 		glVertex2f(hWidth * 0.5f, h);
