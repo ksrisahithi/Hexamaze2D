@@ -2,6 +2,9 @@
 #include<math.h>
 
 extern float hWidth;
+extern float bgColor[3];
+extern float borderColor[3];
+
 class HGon {
 private:
 	float h = sqrtf(3.0f) * 0.5f * hWidth;
@@ -59,14 +62,9 @@ public:
 	void draw() {
 		glPushMatrix();
 		glTranslatef(location[0], location[1], 0.0f);
+
 		glBegin(GL_POLYGON);
-		if (explored) {
-			glColor3f(1.0f, 1.0f, 1.0f);
-		}
-		else
-		{
-			glColor3f(0.75f, 0.75f, 0.75f);
-		}
+		glColor3f(bgColor[0], bgColor[1], bgColor[2]);
 		glVertex2f(hWidth * -0.5f, h);
 		glVertex2f(hWidth * 0.5f, h);
 		glVertex2f(hWidth, 0.0f);
@@ -74,6 +72,18 @@ public:
 		glVertex2f(hWidth * -0.5f, -h);
 		glVertex2f(-hWidth, 0.0f);
 		glEnd();
+		for (int a = 0; a < 6; a++) {
+			glPushMatrix();
+			glRotatef(a * 60.0f, 0.0f, 0.0f, 1.0f);
+			glBegin(GL_POLYGON);
+			glColor3f(borderColor[0], borderColor[1], borderColor[2]);
+			glVertex2f(hWidth * -0.5f * 0.8f, h * 0.8f);
+			glVertex2f(hWidth * 0.5f * 0.8f, h * 0.8f);
+			glVertex2f(hWidth * 0.5f * 0.7f, h * 0.7f);
+			glVertex2f(hWidth * -0.5f * 0.7f, h * 0.7f);
+			glEnd();
+			glPopMatrix();
+		}
 		glPopMatrix();
 	}
 };

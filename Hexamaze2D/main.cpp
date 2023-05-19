@@ -21,7 +21,7 @@ int
 	d9[6] = { -1,5,-1,-1,11,-1 },
 	d10[6] = { 6,8,-1,-1,-1,-1 },
 	d11[6] = { -1,-1,12,15,-1,9 },
-	d12[6] = { 7,11,14,16,13,-1 },
+	d12[6] = { 7,11,14,16,13,10 },
 	d13[6] = { -1,-1,-1,17,-1,-1 },
 	d14[6] = { -1,13,-1,20,-1,12 },
 	d15[6] = { -1,-1,18,-1,14,-1 },
@@ -53,34 +53,34 @@ Door doors[27] = {
 	Door(-8,14,0,1,4), Door(-9,13,1,2,4), Door(-6,12,0,3,7), Door(-1,11,-1,5,8),
 	Door(3,11,-1,6,9), Door(-8,10,0,4,10), Door(0,10,0,5,12), Door(-7,9,-1,7,10),
 	Door(-5,9,1,7,11), Door(-1,9,1,8,12), Door(1,9,-1,9,12), Door(-3,7,1,11,14),
-	Door(-1,7,-1,12,14), Door(1,7,1,12,16), Door(-4,6,0,11,17), Door(0,6,0,12,18),
+	Door(-1,7,-1,12,14), Door(1,7,1,12,15), Door(-4,6,0,11,17), Door(0,6,0,12,18),
 	Door(4,6,0,13,19), Door(3,5,1,15,19), Door(5,5,-1,16,19), Door(-2,4,0,14,21),
 	Door(3,3,-1,19,22), Door(5,3,1,19,23), Door(-4,2,0,17,24), Door(0,2,0,18,25),
 	Door(4,2,0,19,26), Door(-5,1,1,20,24)
 };
 
-float h = sqrtf(3.0f) * 0.5f * hWidth;
-float wt = hWidth * 0.2f;
-
-float playerPosition[2] = {
-	0.0f,
-	(h + 0.5f * wt) * 2.0f
-	//0.0f
-};
 float playerRotation = 0.0f;
-float playerSpeed = 0.023f;
+float playerSpeed = 0.02f;
 float playerRotSpeed = 3.0f;
 bool keyStates[256];
-int currentHex = 18;
+int currentHex = 25;
 int currentDoor = -1;
+
+float playerPosition[2] = {
+	hgons[currentHex].location[0],
+	hgons[currentHex].location[1]
+};
 
 void initGL() {
 	// Set "clearing" or background color
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Black and opaque
-	//glutFullScreen();
-	hgons[18].explored = true;
-	//doors[16].explored = true;
+	glutFullScreen();
+	hgons[currentHex].explored = true;
 	doors[24].explored = true;
+	doors[18].locked = true;
+	doors[5].locked = true;
+	doors[26].locked = true;
+	doors[2].locked = true;
 }
 
 void display() {
@@ -88,33 +88,19 @@ void display() {
 	glPushMatrix();
 	glRotatef(-playerRotation, 0.0f, 0.0f, 1.0f);
 	glTranslatef(-playerPosition[0], -playerPosition[1], 0.0f);
-		for (HGon h : hgons) {
-			h.draw();
-		}
-		for (Door d : doors) {
-			d.draw();
-		}
+	for (int hex = 0; hex < 27; hex++ ) {
+		if (hgons[hex].explored) hgons[hex].draw();
+	}
+	for (int dr = 0; dr < 27; dr++) {
+		if (doors[dr].explored) doors[dr].draw();
+	}
 	glPopMatrix();
 	glPointSize(5.0f);
 	glBegin(GL_POINTS);
 	glColor3f(1.0f, 0.0f, 0.0f);
 	glVertex2f(0.0f, 0.0f);
 	glEnd();
-	/*glBegin(GL_POLYGON);
-	glColor3f(1.0f, 0.0f, 0.0f);
-	glVertex2f(-hWidth * 0.1f, -hWidth * 0.07f);
-	glVertex2f(hWidth * 0.1f, -hWidth * 0.07f);
-	glVertex2f(0.0f, hWidth * 0.23f);
-	glEnd();
-	glBegin(GL_LINE_LOOP);
-	glColor3f(1.0f, 1.0f, 1.0f);
-	glVertex2f(-hWidth * 0.1f, -hWidth * 0.07f);
-	glVertex2f(hWidth * 0.1f, -hWidth * 0.07f);
-	glVertex2f(0.0f, hWidth * 0.23f);
-	glEnd();*/
-	
 	glFlush();
-	
 }
 
 /* Handler for window re-size event. Called back when the window first appears and
@@ -149,41 +135,43 @@ void keyboard(unsigned char key, int x, int y) {
 /* Callback handler for special keys */
 void specialKeys(int key, int x, int y) {
 	float rot = (90.0f - playerRotation) * 22.0f / 7.0f / 180.0f;
-	float temp[2] = { playerPosition[0] - playerSpeed * cos(rot),
-			playerPosition[1] + playerSpeed * sin(rot) };
+	float temp[2] = { playerPosition[0] - playerSpeed * cosf(rot),
+			playerPosition[1] + playerSpeed * sinf(rot) };
 	switch (key)
 	{
 	case GLUT_KEY_UP:
 		if (currentHex != -1 && hgons[currentHex].isInsideHex(temp)) {
-			std::cout << "current hex: " << currentHex << ", current door: " << currentDoor << "\n";
+			for (int dr : hgons[currentHex].doors) {
+				doors[dr].explored = true;
+			}
 			playerPosition[0] -= playerSpeed * cos(rot);
 			playerPosition[1] += playerSpeed * sin(rot);
 			break;
 		}
 		if (currentHex != -1) {
 			for (int door : hgons[currentHex].doors) {
-				if (door != -1 && doors[door].isInsideDoor(temp)) {
-					std::cout << "current hex: " << currentHex << ", current door: " << currentDoor << "\n";
+				if (door != -1 && !doors[door].locked && doors[door].isInsideDoor(temp)) {
 					playerPosition[0] -= playerSpeed * cos(rot);
 					playerPosition[1] += playerSpeed * sin(rot);
 					currentDoor = door;
+					doors[currentDoor].explored = true;
 					currentHex = -1;
 					break;
 				}
 			}
 		}
 		if (currentDoor != -1 && doors[currentDoor].isInsideDoor(temp)) {
-			std::cout << "current hex: " << currentHex << ", current door: " << currentDoor << "\n";
+			hgons[doors[currentDoor].hex1].explored = true;
+			hgons[doors[currentDoor].hex2].explored = true;
 			playerPosition[0] -= playerSpeed * cos(rot);
 			playerPosition[1] += playerSpeed * sin(rot);
 			break;
 		}
 		if (currentDoor != -1 && hgons[doors[currentDoor].hex1].isInsideHex(temp)) {
-			std::cout << "inside 4th if.";
-			//std::cout << "inside hexagon " << doors[currentDoor].hex1;
 			playerPosition[0] -= playerSpeed * cos(rot);
 			playerPosition[1] += playerSpeed * sin(rot);
 			currentHex = doors[currentDoor].hex1;
+			hgons[currentHex].explored = true;
 			currentDoor = -1;
 			break;
 		}
@@ -191,11 +179,10 @@ void specialKeys(int key, int x, int y) {
 			playerPosition[0] -= playerSpeed * cos(rot);
 			playerPosition[1] += playerSpeed * sin(rot);
 			currentHex = doors[currentDoor].hex2;
+			hgons[currentHex].explored = true;
 			currentDoor = -1;
-			std::cout << "inside last if";
 			break;
 		}
-		//std::cout << "Player position - " << "X: " << playerPosition[0] << "Y: " << playerPosition[1] << ".\n";
 		break;
 	case GLUT_KEY_RIGHT:
 		playerRotation -= playerRotSpeed;

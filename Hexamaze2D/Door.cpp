@@ -3,6 +3,7 @@
 #include <cmath>
 
 extern float hWidth;
+extern float bgColor[3];
 
 class Door {
 private:
@@ -43,19 +44,18 @@ public:
 		// Rotate the point
 		float cosAngle = cosf(-rotation * PI / 180.0f);
 		float sinAngle = sinf(-rotation * PI / 180.0f);
-		float xfloatPrime = xPrime * cosAngle + yPrime * sinAngle;
-		float yfloatPrime = -xPrime * sinAngle + yPrime * cosAngle;
+		float xfloatPrime = xPrime * cosAngle - yPrime * sinAngle;
+		float yfloatPrime = xPrime * sinAngle + yPrime * cosAngle;
 
 		// Calculate half-width and half-height of the unrotated rectangle
 		float halfWidth = doorHalfWidth;
 		float halfHeight = doorHalfHeight + 0.02f; // increased door height for calculating inside.
 
-		// Check if the rotated point is inside the unrotated rectangle
-		if (std::abs(xfloatPrime) <= halfWidth && std::abs(yfloatPrime) <= halfHeight) {
-			return true;
-		}
-
-		return false;
+		return
+			(xfloatPrime >= -halfWidth) &&
+			(xfloatPrime <= halfWidth) &&
+			(yfloatPrime >= -halfHeight) &&
+			(yfloatPrime <= halfHeight);
 	}
 
 	void draw() {
@@ -63,13 +63,7 @@ public:
 		glTranslatef(location[0], location[1], 0.0f);
 		glRotatef(rotation, 0.0f, 0.0f, 1.0f);
 		glBegin(GL_POLYGON);
-		if (explored) {
-			glColor3f(1.0f, 1.0f, 1.0f);
-		}
-		else
-		{
-			glColor3f(0.75f, 0.75f, 0.75f);
-		}
+		glColor3f(bgColor[0], bgColor[1], bgColor[2]);
 		glVertex2f(-doorHalfWidth, doorHalfHeight);
 		glVertex2f(doorHalfWidth, doorHalfHeight);
 		glVertex2f(doorHalfWidth, -doorHalfHeight);
