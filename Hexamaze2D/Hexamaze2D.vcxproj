@@ -24,6 +24,10 @@
     <ClCompile Include="globals.cpp" />
     <ClCompile Include="hGon.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Pearl.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="HGon.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

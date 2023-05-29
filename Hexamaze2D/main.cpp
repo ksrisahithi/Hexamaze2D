@@ -3,8 +3,9 @@
 #include<iostream>
 #include<cmath>
 
-#include "hGon.cpp"
+#include "hGon.h"
 #include "Door.cpp"
+#include "Pearl.cpp"
 
 extern float hWidth;
 
@@ -59,6 +60,10 @@ Door doors[27] = {
 	Door(4,2,0,19,26), Door(-5,1,1,20,24)
 };
 
+float pearlLoc[2] = {0.0f,0.0f};
+
+Pearl pearl = Pearl(hgons[25],4);
+
 float playerRotation = 0.0f;
 float playerSpeed = 0.02f;
 float playerRotSpeed = 3.0f;
@@ -94,6 +99,7 @@ void display() {
 	for (int dr = 0; dr < 27; dr++) {
 		if (doors[dr].explored) doors[dr].draw();
 	}
+	pearl.draw();
 	glPopMatrix();
 	glPointSize(5.0f);
 	glBegin(GL_POINTS);
@@ -140,6 +146,10 @@ void specialKeys(int key, int x, int y) {
 	switch (key)
 	{
 	case GLUT_KEY_UP:
+		if (pearl.isInsidePearl(temp)) {
+			std::cout << "is inside pearl.";
+			exit(0);
+		}
 		if (currentHex != -1 && hgons[currentHex].isInsideHex(temp)) {
 			for (int dr : hgons[currentHex].doors) {
 				doors[dr].explored = true;
