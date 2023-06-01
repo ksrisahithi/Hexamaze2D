@@ -3,7 +3,7 @@
 #include<iostream>
 #include<cmath>
 
-#include "hGon.h"
+#include "HGon.h"
 #include "Door.cpp"
 #include "Pearl.cpp"
 
@@ -60,9 +60,23 @@ Door doors[27] = {
 	Door(4,2,0,19,26), Door(-5,1,1,20,24)
 };
 
-float pearlLoc[2] = {0.0f,0.0f};
 
-Pearl pearl = Pearl(hgons[25],4);
+Pearl pearls[50] = {
+	Pearl(hgons[18].location, 0, 18),Pearl(hgons[18].location, 1, 18),
+	Pearl(hgons[8].location, 0, 8),Pearl(hgons[8].location, 2, 8),
+	Pearl(hgons[5].location, 0, 5),Pearl(hgons[5].location, 1, 5), Pearl(hgons[5].location, 3, 5),
+	Pearl(hgons[9].location, 5, 9),Pearl(hgons[9].location, 3, 9),
+	Pearl(hgons[13].location, 0, 13),Pearl(hgons[13].location, 1,13),Pearl(hgons[13].location, 2, 13),Pearl(hgons[13].location, 3, 13), Pearl(hgons[13].location, 4, 13),
+	Pearl(hgons[16].location, 0, 16),Pearl(hgons[16].location, 1, 16),Pearl(hgons[16].location, 2, 16),Pearl(hgons[16].location, 3, 16), Pearl(hgons[16].location, 4, 16),
+	Pearl(hgons[23].location, 0, 23),Pearl(hgons[23].location, 1, 23),Pearl(hgons[23].location, 2, 23),Pearl(hgons[23].location, 3, 23), Pearl(hgons[23].location, 4, 23),
+	Pearl(hgons[26].location, 0, 26),Pearl(hgons[26].location, 1, 26),Pearl(hgons[26].location, 2, 26),Pearl(hgons[26].location, 3, 26), Pearl(hgons[26].location, 4, 26),
+	Pearl(hgons[22].location, 0, 22),Pearl(hgons[22].location, 1, 22),Pearl(hgons[22].location, 2, 22),Pearl(hgons[22].location, 3, 22), Pearl(hgons[22].location, 4, 22),
+	Pearl(hgons[21].location, 0, 21),Pearl(hgons[21].location, 1, 21),Pearl(hgons[21].location, 2, 21),Pearl(hgons[21].location, 3, 21), Pearl(hgons[21].location, 4, 21),
+	Pearl(hgons[10].location, 0, 10),Pearl(hgons[10].location, 1, 10),Pearl(hgons[10].location, 2, 10),
+	Pearl(hgons[4].location, 0, 4),Pearl(hgons[4].location, 1, 4),Pearl(hgons[4].location, 2, 4),
+	Pearl(hgons[11].location, 0, 11),Pearl(hgons[11].location, 1, 11),Pearl(hgons[11].location, 2, 11),
+	Pearl(hgons[15].location, 0, 15),Pearl(hgons[15].location, 1, 15)
+};
 
 float playerRotation = 0.0f;
 float playerSpeed = 0.02f;
@@ -99,7 +113,9 @@ void display() {
 	for (int dr = 0; dr < 27; dr++) {
 		if (doors[dr].explored) doors[dr].draw();
 	}
-	pearl.draw();
+	for (int pr = 0; pr < 50; pr++) {
+		if (!pearls[pr].collected && hgons[pearls[pr].parentNum].explored) pearls[pr].draw();
+	}
 	glPopMatrix();
 	glPointSize(5.0f);
 	glBegin(GL_POINTS);
@@ -146,10 +162,10 @@ void specialKeys(int key, int x, int y) {
 	switch (key)
 	{
 	case GLUT_KEY_UP:
-		if (pearl.isInsidePearl(temp)) {
+		/*if (pearl.isInsidePearl(temp)) {
 			std::cout << "is inside pearl.";
 			exit(0);
-		}
+		}*/
 		if (currentHex != -1 && hgons[currentHex].isInsideHex(temp)) {
 			for (int dr : hgons[currentHex].doors) {
 				doors[dr].explored = true;
