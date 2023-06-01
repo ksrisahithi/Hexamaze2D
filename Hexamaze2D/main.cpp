@@ -2,12 +2,15 @@
 #include<math.h>
 #include<iostream>
 #include<cmath>
+#include<string>
 
 #include "HGon.h"
 #include "Door.cpp"
 #include "Pearl.cpp"
 
 extern float hWidth;
+
+void drawScoreboard();
 
 int
 	d0[6] = { -1,-1,0,-1,-1,-1 },
@@ -84,6 +87,7 @@ float playerRotSpeed = 3.0f;
 bool keyStates[256];
 int currentHex = 25;
 int currentDoor = -1;
+int pearlsCollected = 0;
 
 float playerPosition[2] = {
 	hgons[currentHex].location[0],
@@ -122,6 +126,7 @@ void display() {
 	glColor3f(1.0f, 0.0f, 0.0f);
 	glVertex2f(0.0f, 0.0f);
 	glEnd();
+	drawScoreboard();
 	glFlush();
 }
 
@@ -154,6 +159,18 @@ void keyboard(unsigned char key, int x, int y) {
 	}
 }
 
+void drawScoreboard() {
+	glColor3f(1.0f, 1.0f, 0.0f);
+	glRasterPos2f(-0.9f, 0.9f);
+	std::string w = "NUMBER OF PEARLS COLLECTED : ";
+	w += std::to_string(pearlsCollected);
+	int len = w.length();
+	for (int i = 0; i < len; i++)
+	{
+		glutBitmapCharacter(GLUT_BITMAP_9_BY_15, w[i]);
+	}
+}
+
 /* Callback handler for special keys */
 void specialKeys(int key, int x, int y) {
 	float rot = (90.0f - playerRotation) * 22.0f / 7.0f / 180.0f;
@@ -162,10 +179,16 @@ void specialKeys(int key, int x, int y) {
 	switch (key)
 	{
 	case GLUT_KEY_UP:
-		/*if (pearl.isInsidePearl(temp)) {
-			std::cout << "is inside pearl.";
-			exit(0);
-		}*/
+		for (int i = 0; i < 50; i++)
+		{
+			if (pearls[i].isInsidePearl(temp) && pearls[i].collected == false) {
+				//std::cout << "is inside pearl.";
+				pearlsCollected++;
+				//std::cout << "number of pearls collected : " << pearlsCollected;
+				pearls[i].collected = true;
+				break;
+			}
+		}
 		if (currentHex != -1 && hgons[currentHex].isInsideHex(temp)) {
 			for (int dr : hgons[currentHex].doors) {
 				doors[dr].explored = true;
