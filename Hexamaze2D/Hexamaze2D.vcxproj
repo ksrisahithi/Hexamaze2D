@@ -22,11 +22,13 @@
     <ClCompile Include="Door.cpp" />
     <ClCompile Include="functions.cpp" />
     <ClCompile Include="globals.cpp" />
-    <ClCompile Include="hGon.cpp" />
+    <ClCompile Include="HGon.cpp" />
+    <ClCompile Include="Key.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Pearl.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Key.h" />
     <ClInclude Include="HGon.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

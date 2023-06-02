@@ -7,6 +7,7 @@
 #include "HGon.h"
 #include "Door.cpp"
 #include "Pearl.cpp"
+#include "Key.h"
 
 extern float hWidth;
 
@@ -80,6 +81,8 @@ Pearl pearls[50] = {
 	Pearl(hgons[11].location, 0, 11),Pearl(hgons[11].location, 1, 11),Pearl(hgons[11].location, 2, 11),
 	Pearl(hgons[15].location, 0, 15),Pearl(hgons[15].location, 1, 15)
 };
+float keyColor[3] = { 0.5f, 0.6f, 1.0f };
+Key smallKey = Key(21, hgons[21].location, 0.02f, keyColor);
 
 float playerRotation = 0.0f;
 float playerSpeed = 0.02f;
@@ -111,15 +114,23 @@ void display() {
 	glPushMatrix();
 	glRotatef(-playerRotation, 0.0f, 0.0f, 1.0f);
 	glTranslatef(-playerPosition[0], -playerPosition[1], 0.0f);
+
 	for (int hex = 0; hex < 27; hex++ ) {
 		if (hgons[hex].explored) hgons[hex].draw();
 	}
+
 	for (int dr = 0; dr < 27; dr++) {
 		if (doors[dr].explored) doors[dr].draw();
 	}
+
 	for (int pr = 0; pr < 50; pr++) {
 		if (!pearls[pr].collected && hgons[pearls[pr].parentNum].explored) pearls[pr].draw();
 	}
+
+	if (smallKey.collected == false && hgons[smallKey.parentNum].explored) {
+		smallKey.draw();
+	}
+
 	glPopMatrix();
 	glPointSize(5.0f);
 	glBegin(GL_POINTS);
@@ -160,6 +171,17 @@ void keyboard(unsigned char key, int x, int y) {
 }
 
 void drawScoreboard() {
+	glPushMatrix();
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_BLEND);
+	glColor4f(0.0f, 0.0f, 0.2f, 0.8f);
+	glBegin(GL_QUADS);
+	glVertex2f(-0.95f, 0.95f);
+	glVertex2f(0.95f, 0.95f);
+	glVertex2f(0.95f, 0.7f);
+	glVertex2f(-0.95f, 0.7f);
+	glEnd();
+	glDisable(GL_BLEND);
 	glColor3f(1.0f, 1.0f, 0.0f);
 	glRasterPos2f(-0.9f, 0.9f);
 	std::string w = "NUMBER OF PEARLS COLLECTED : ";
@@ -169,6 +191,7 @@ void drawScoreboard() {
 	{
 		glutBitmapCharacter(GLUT_BITMAP_9_BY_15, w[i]);
 	}
+	glPopMatrix();
 }
 
 /* Callback handler for special keys */
@@ -182,12 +205,16 @@ void specialKeys(int key, int x, int y) {
 		for (int i = 0; i < 50; i++)
 		{
 			if (pearls[i].isInsidePearl(temp) && pearls[i].collected == false) {
-				//std::cout << "is inside pearl.";
 				pearlsCollected++;
-				//std::cout << "number of pearls collected : " << pearlsCollected;
 				pearls[i].collected = true;
 				break;
 			}
+		}
+		if (smallKey.isInsideKey(temp) && smallKey.collected == false) {
+			std::cout << "Small key collected.";
+			smallKey.collected = true;
+			doors[18].locked = false;
+			break;
 		}
 		if (currentHex != -1 && hgons[currentHex].isInsideHex(temp)) {
 			for (int dr : hgons[currentHex].doors) {
@@ -235,11 +262,9 @@ void specialKeys(int key, int x, int y) {
 		break;
 	case GLUT_KEY_RIGHT:
 		playerRotation -= playerRotSpeed;
-		//std::cout << "Player Rotation: " << playerRotation << ".\n";
 		break;
 	case GLUT_KEY_LEFT:
 		playerRotation += playerRotSpeed;
-		//std::cout << "Player Rotation: " << playerRotation << ".\n";
 		break;
 	default:
 		break;

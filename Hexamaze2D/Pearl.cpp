@@ -1,7 +1,6 @@
 #include<Gl/glut.h>
 #include<math.h>
 #include<iostream>
-#include "HGon.h"
 #define PI 3.14159265f
 
 extern float hWidth;
