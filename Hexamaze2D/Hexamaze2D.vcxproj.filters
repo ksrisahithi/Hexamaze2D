@@ -36,6 +36,9 @@
     <ClCompile Include="Key.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Tunnel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="HGon.h">
@@ -43,6 +46,9 @@
     </ClInclude>
     <ClInclude Include="Key.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Tunnel.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

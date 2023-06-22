@@ -14,15 +14,6 @@ HGon::HGon(int x, int y, int d[6]) {
 	}
 }
 
-HGon::HGon()
-{
-	this->location[0] = 0.0f;
-	this->location[1] = 0.0f;
-	for (int i = 0; i < 6; i++) {
-		this->doors[i] = -1;
-	}
-}
-
 bool HGon::isInsideHex(float point[2]) {
 	float vertices[6][2] = {
 		{location[0] - 0.5f * hWidth, location[1] + h},

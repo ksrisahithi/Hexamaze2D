@@ -8,6 +8,7 @@
 #include "Door.cpp"
 #include "Pearl.cpp"
 #include "Key.h"
+#include "Tunnel.h"
 
 extern float hWidth;
 
@@ -81,6 +82,9 @@ Pearl pearls[50] = {
 	Pearl(hgons[11].location, 0, 11),Pearl(hgons[11].location, 1, 11),Pearl(hgons[11].location, 2, 11),
 	Pearl(hgons[15].location, 0, 15),Pearl(hgons[15].location, 1, 15)
 };
+
+Tunnel tunnel = Tunnel(d7);
+
 float keyColor[3] = { 0.5f, 0.6f, 1.0f };
 Key smallKey = Key(21, hgons[21].location, 0.02f, keyColor);
 
@@ -98,7 +102,6 @@ float playerPosition[2] = {
 };
 
 void initGL() {
-	// Set "clearing" or background color
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Black and opaque
 	glutFullScreen();
 	hgons[currentHex].explored = true;
@@ -107,6 +110,7 @@ void initGL() {
 	doors[5].locked = true;
 	doors[26].locked = true;
 	doors[2].locked = true;
+	tunnel.flipped = true;
 }
 
 void display() {
@@ -130,6 +134,8 @@ void display() {
 	if (smallKey.collected == false && hgons[smallKey.parentNum].explored) {
 		smallKey.draw();
 	}
+
+	tunnel.draw();
 
 	glPopMatrix();
 	glPointSize(5.0f);

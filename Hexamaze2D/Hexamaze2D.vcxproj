@@ -26,10 +26,12 @@
     <ClCompile Include="Key.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Pearl.cpp" />
+    <ClCompile Include="Tunnel.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Key.h" />
     <ClInclude Include="HGon.h" />
+    <ClInclude Include="Tunnel.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

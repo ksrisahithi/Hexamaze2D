@@ -19,8 +19,6 @@ public:
 
 	HGon(int x, int y, int d[6]);
 
-	HGon();
-
 	void draw();
 };
 #endif // !1
