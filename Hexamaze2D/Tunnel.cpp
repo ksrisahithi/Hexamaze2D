@@ -16,40 +16,34 @@ Tunnel::Tunnel(int d[6]) {
 
 bool Tunnel::isInsideTunnel(float point[2]) {
 	float poly1[4][2] = {
-		{coord[0][0],coord[0][1]},
-		{coord[1][0],coord[1][1]},
-		{coord[2][0],coord[2][1]},
-		{coord[5][0],coord[5][1]}
+		{location[0] + coord[0][0],location[1] + coord[0][1]},
+		{location[0] + coord[1][0],location[1] + coord[1][1]},
+		{location[0] + coord[2][0],location[1] + coord[2][1]},
+		{location[0] + coord[5][0],location[1] + coord[5][1]}
 	};
 	float poly2[4][2] = {
-		{coord[5][0],coord[5][1]},
-		{coord[2][0],coord[2][1]},
-		{coord[3][0],coord[3][1]},
-		{coord[4][0],coord[4][1]}
+		{location[0] + coord[5][0],location[1] + coord[5][1]},
+		{location[0] + coord[2][0],location[1] + coord[2][1]},
+		{location[0] + coord[3][0],location[1] + coord[3][1]},
+		{location[0] + coord[4][0],location[1] + coord[4][1]}
 	};
 	float fpoly1[4][2] = {
-		{flippedCoord[0][0],flippedCoord[0][1]},
-		{flippedCoord[1][0],flippedCoord[1][1]},
-		{flippedCoord[2][0],flippedCoord[2][1]},
-		{flippedCoord[5][0],flippedCoord[5][1]}
+		{location[0] + flippedCoord[0][0],location[1] + flippedCoord[0][1]},
+		{location[0] + flippedCoord[1][0],location[1] + flippedCoord[1][1]},
+		{location[0] + flippedCoord[2][0],location[1] + flippedCoord[2][1]},
+		{location[0] + flippedCoord[5][0],location[1] + flippedCoord[5][1]}
 	};
 	float fpoly2[4][2] = {
-		{flippedCoord[5][0],flippedCoord[5][1]},
-		{flippedCoord[2][0],flippedCoord[2][1]},
-		{flippedCoord[3][0],flippedCoord[3][1]},
-		{flippedCoord[4][0],flippedCoord[4][1]}
+		{location[0] + flippedCoord[5][0],location[1] + flippedCoord[5][1]},
+		{location[0] + flippedCoord[2][0],location[1] + flippedCoord[2][1]},
+		{location[0] + flippedCoord[3][0],location[1] + flippedCoord[3][1]},
+		{location[0] + flippedCoord[4][0],location[1] + flippedCoord[4][1]}
 	};
 	if (!flipped) {
-		if (isInsidePoly(poly1, point) || isInsidePoly(poly2,point) ) {
-			return true;
-		}
-		else return false;
+		return isInsidePoly(poly1, point) || isInsidePoly(poly2, point);
 	}
 	else {
-		if (isInsidePoly(fpoly1, point) || isInsidePoly(fpoly2, point)) {
-			return true;
-		}
-		else return false;
+		return isInsidePoly(fpoly1, point) || isInsidePoly(fpoly2, point);
 	}
 }
 

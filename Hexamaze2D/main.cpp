@@ -85,8 +85,10 @@ Pearl pearls[50] = {
 
 Tunnel tunnel = Tunnel(d7);
 
-float keyColor[3] = { 0.5f, 0.6f, 1.0f };
-Key smallKey = Key(21, hgons[21].location, 0.02f, keyColor);
+float smallKeyColor[3] = { 0.5f, 0.6f, 1.0f };
+float bigKeyColor[3] = { 0.6f, 0.0f, 0.0f };
+Key smallKey = Key(21, hgons[21].location, 0.02f, smallKeyColor);
+Key bigKey = Key(3, hgons[3].location, 0.03f, bigKeyColor);
 
 float playerRotation = 0.0f;
 float playerSpeed = 0.02f;
@@ -120,7 +122,7 @@ void display() {
 	glTranslatef(-playerPosition[0], -playerPosition[1], 0.0f);
 
 	for (int hex = 0; hex < 27; hex++ ) {
-		if (hgons[hex].explored) hgons[hex].draw();
+		if (hgons[hex].explored && hex != 7) hgons[hex].draw();
 	}
 
 	for (int dr = 0; dr < 27; dr++) {
@@ -135,7 +137,11 @@ void display() {
 		smallKey.draw();
 	}
 
-	tunnel.draw();
+	if (bigKey.collected == false && hgons[bigKey.parentNum].explored) {
+		bigKey.draw();
+	}
+
+	if (tunnel.explored) tunnel.draw();
 
 	glPopMatrix();
 	glPointSize(5.0f);
@@ -222,7 +228,23 @@ void specialKeys(int key, int x, int y) {
 			doors[18].locked = false;
 			break;
 		}
-		if (currentHex != -1 && hgons[currentHex].isInsideHex(temp)) {
+		if (bigKey.isInsideKey(temp) && bigKey.collected == false) {
+			std::cout << "Small key collected.";
+			bigKey.collected = true;
+			doors[2].locked = false;
+			break;
+		}
+		if (currentHex == 7) { // checks for tunnel hexagon i.e hexagon no = 7
+			if (tunnel.isInsideTunnel(temp)) {
+				doors[9].explored = true;
+				if (tunnel.flipped) doors[3].explored = true;
+				else doors[8].explored = true;
+				playerPosition[0] -= playerSpeed * cos(rot);
+				playerPosition[1] += playerSpeed * sin(rot);
+				break;
+			}
+		}
+		else if (currentHex != -1 && hgons[currentHex].isInsideHex(temp)) { // checks if player is inside a hex
 			for (int dr : hgons[currentHex].doors) {
 				doors[dr].explored = true;
 			}
@@ -230,7 +252,7 @@ void specialKeys(int key, int x, int y) {
 			playerPosition[1] += playerSpeed * sin(rot);
 			break;
 		}
-		if (currentHex != -1) {
+		if (currentHex != -1) { // checks if player is inside door
 			for (int door : hgons[currentHex].doors) {
 				if (door != -1 && !doors[door].locked && doors[door].isInsideDoor(temp)) {
 					playerPosition[0] -= playerSpeed * cos(rot);
@@ -243,13 +265,29 @@ void specialKeys(int key, int x, int y) {
 			}
 		}
 		if (currentDoor != -1 && doors[currentDoor].isInsideDoor(temp)) {
-			hgons[doors[currentDoor].hex1].explored = true;
-			hgons[doors[currentDoor].hex2].explored = true;
+			if (doors[currentDoor].hex1 != 7)
+				hgons[doors[currentDoor].hex1].explored = true;
+			else
+				tunnel.explored = true;
+			if (doors[currentDoor].hex2 != 7)
+				hgons[doors[currentDoor].hex2].explored = true;
+			else
+				tunnel.explored = true;
 			playerPosition[0] -= playerSpeed * cos(rot);
 			playerPosition[1] += playerSpeed * sin(rot);
 			break;
 		}
-		if (currentDoor != -1 && hgons[doors[currentDoor].hex1].isInsideHex(temp)) {
+		if (doors[currentDoor].hex1 == 7) {
+			if (currentDoor != -1 && tunnel.isInsideTunnel(temp)) {
+				playerPosition[0] -= playerSpeed * cos(rot);
+				playerPosition[1] += playerSpeed * sin(rot);
+				tunnel.explored = true;
+				currentHex = 7;
+				currentDoor = -1;
+				break;
+			}
+		}
+		else if (currentDoor != -1 && hgons[doors[currentDoor].hex1].isInsideHex(temp)) {
 			playerPosition[0] -= playerSpeed * cos(rot);
 			playerPosition[1] += playerSpeed * sin(rot);
 			currentHex = doors[currentDoor].hex1;
@@ -257,7 +295,17 @@ void specialKeys(int key, int x, int y) {
 			currentDoor = -1;
 			break;
 		}
-		if (currentDoor != -1 && hgons[doors[currentDoor].hex2].isInsideHex(temp)) {
+		if (doors[currentDoor].hex2 == 7) {
+			if (currentDoor != -1 && tunnel.isInsideTunnel(temp)) {
+				playerPosition[0] -= playerSpeed * cos(rot);
+				playerPosition[1] += playerSpeed * sin(rot);
+				tunnel.explored = true;
+				currentHex = 7;
+				currentDoor = -1;
+				break;
+			}
+		}
+		else if (currentDoor != -1 && hgons[doors[currentDoor].hex2].isInsideHex(temp)) {
 			playerPosition[0] -= playerSpeed * cos(rot);
 			playerPosition[1] += playerSpeed * sin(rot);
 			currentHex = doors[currentDoor].hex2;
