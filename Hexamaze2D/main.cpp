@@ -3,16 +3,20 @@
 #include<iostream>
 #include<cmath>
 #include<string>
+#include<ctime>
 
 #include "HGon.h"
 #include "Door.cpp"
 #include "Pearl.cpp"
 #include "Key.h"
 #include "Tunnel.h"
+#include "Wheel.cpp"
+#include "Mitra.cpp"
 
 extern float hWidth;
 
 void drawScoreboard();
+
 
 int
 	d0[6] = { -1,-1,0,-1,-1,-1 },
@@ -76,7 +80,7 @@ Pearl pearls[50] = {
 	Pearl(hgons[23].location, 0, 23),Pearl(hgons[23].location, 1, 23),Pearl(hgons[23].location, 2, 23),Pearl(hgons[23].location, 3, 23), Pearl(hgons[23].location, 4, 23),
 	Pearl(hgons[26].location, 0, 26),Pearl(hgons[26].location, 1, 26),Pearl(hgons[26].location, 2, 26),Pearl(hgons[26].location, 3, 26), Pearl(hgons[26].location, 4, 26),
 	Pearl(hgons[22].location, 0, 22),Pearl(hgons[22].location, 1, 22),Pearl(hgons[22].location, 2, 22),Pearl(hgons[22].location, 3, 22), Pearl(hgons[22].location, 4, 22),
-	Pearl(hgons[21].location, 0, 21),Pearl(hgons[21].location, 1, 21),Pearl(hgons[21].location, 2, 21),Pearl(hgons[21].location, 3, 21), Pearl(hgons[21].location, 4, 21),
+	Pearl(hgons[20].location, 0, 20),Pearl(hgons[20].location, 1, 20),Pearl(hgons[20].location, 2, 20),Pearl(hgons[20].location, 3, 20), Pearl(hgons[20].location, 4, 20),
 	Pearl(hgons[10].location, 0, 10),Pearl(hgons[10].location, 1, 10),Pearl(hgons[10].location, 2, 10),
 	Pearl(hgons[4].location, 0, 4),Pearl(hgons[4].location, 1, 4),Pearl(hgons[4].location, 2, 4),
 	Pearl(hgons[11].location, 0, 11),Pearl(hgons[11].location, 1, 11),Pearl(hgons[11].location, 2, 11),
@@ -87,8 +91,14 @@ Tunnel tunnel = Tunnel(d7);
 
 float smallKeyColor[3] = { 0.5f, 0.6f, 1.0f };
 float bigKeyColor[3] = { 0.6f, 0.0f, 0.0f };
+float scrollKeyColor[3] = { 0.5f, 0.3f, 0.6f };
 Key smallKey = Key(21, hgons[21].location, 0.02f, smallKeyColor);
 Key bigKey = Key(3, hgons[3].location, 0.03f, bigKeyColor);
+Key scrollKey = Key(1, hgons[1].location, 0.02f, scrollKeyColor);
+
+Wheel wheel = Wheel(hgons[6].location);
+
+Mitra mitra = Mitra(hgons[0].location);
 
 float playerRotation = 0.0f;
 float playerSpeed = 0.02f;
@@ -96,7 +106,10 @@ float playerRotSpeed = 3.0f;
 bool keyStates[256];
 int currentHex = 25;
 int currentDoor = -1;
-int pearlsCollected = 0;
+int pearlsCollected = 49;
+bool flashTextBegin = false;
+std::string flashText;
+int flashTextMsec = 0;
 
 float playerPosition[2] = {
 	hgons[currentHex].location[0],
@@ -112,7 +125,7 @@ void initGL() {
 	doors[5].locked = true;
 	doors[26].locked = true;
 	doors[2].locked = true;
-	tunnel.flipped = true;
+	tunnel.flipped = false;
 }
 
 void display() {
@@ -141,15 +154,28 @@ void display() {
 		bigKey.draw();
 	}
 
+	if (scrollKey.collected == false && hgons[scrollKey.parentNum].explored) {
+		scrollKey.draw();
+	}
+
 	if (tunnel.explored) tunnel.draw();
+
+	if (hgons[6].explored) wheel.draw();
+
+	if (hgons[0].explored && mitra.collected == false) mitra.draw();
 
 	glPopMatrix();
 	glPointSize(5.0f);
-	glBegin(GL_POINTS);
+	glBegin(GL_POINTS); //player 
 	glColor3f(1.0f, 0.0f, 0.0f);
 	glVertex2f(0.0f, 0.0f);
 	glEnd();
 	drawScoreboard();
+	if (flashTextBegin) {
+		glRasterPos2f(-0.9f, 0.7f); // flash text position
+		for (int i = 0; i < flashText.length(); i++)
+			glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, flashText[i]);
+	}
 	glFlush();
 }
 
@@ -182,6 +208,13 @@ void keyboard(unsigned char key, int x, int y) {
 	}
 }
 
+void drawText(std::string str, float pos[2]) {
+	glRasterPos2fv(pos);
+	int len = str.length();
+	for (int i = 0; i < len; i++)
+		glutBitmapCharacter(GLUT_BITMAP_9_BY_15, str[i]);
+}
+
 void drawScoreboard() {
 	glPushMatrix();
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -195,43 +228,105 @@ void drawScoreboard() {
 	glEnd();
 	glDisable(GL_BLEND);
 	glColor3f(1.0f, 1.0f, 0.0f);
-	glRasterPos2f(-0.9f, 0.9f);
+	float pos[2] = { -0.9f,0.9f };
 	std::string w = "NUMBER OF PEARLS COLLECTED : ";
 	w += std::to_string(pearlsCollected);
-	int len = w.length();
-	for (int i = 0; i < len; i++)
-	{
-		glutBitmapCharacter(GLUT_BITMAP_9_BY_15, w[i]);
+	drawText(w, pos);
+	pos[0] = -0.9f; pos[1] = 0.85f;
+	w = "TUNNEL DIRECTION : ";
+	if (tunnel.flipped) w += "FLIPPED";
+	else w += "NOT FLIPPED";
+	drawText(w, pos);
+	if (smallKey.collected) {
+		pos[0] = 0.2f; pos[1] = 0.9f;
+		w = "SMALL KEY-1 COLLECTED";
+		drawText(w, pos);
+	}
+	if (scrollKey.collected) {
+		pos[0] = 0.2f; pos[1] = 0.85f;
+		w = "SMALL KEY-2 COLLECTED";
+		drawText(w, pos);
+	}
+	if (bigKey.collected) {
+		pos[0] = 0.2f; pos[1] = 0.8f;
+		w = "BIG KEY COLLECTED";
+		drawText(w, pos);
 	}
 	glPopMatrix();
 }
+
+void Timer() {
+	
+	clock_t now = clock();
+	while (clock() - now < 1000)
+		display();
+	flashTextBegin = false;
+	
+}
+
 
 /* Callback handler for special keys */
 void specialKeys(int key, int x, int y) {
 	float rot = (90.0f - playerRotation) * 22.0f / 7.0f / 180.0f;
 	float temp[2] = { playerPosition[0] - playerSpeed * cosf(rot),
-			playerPosition[1] + playerSpeed * sinf(rot) };
+		playerPosition[1] + playerSpeed * sinf(rot) };
 	switch (key)
 	{
 	case GLUT_KEY_UP:
+		if (!wheel.isInsideWheel(temp)) {
+			wheel.playerInside = false;
+		}
 		for (int i = 0; i < 50; i++)
 		{
 			if (pearls[i].isInsidePearl(temp) && pearls[i].collected == false) {
 				pearlsCollected++;
 				pearls[i].collected = true;
+				if (pearlsCollected == 50) {
+					doors[5].locked = false;
+					flashText = "50 PEARLS COLLECTED, NEW DOOR UNLOCKED";
+					flashTextBegin = true;
+					Timer();
+				}
 				break;
 			}
 		}
+		if(wheel.isInsideWheel(temp) && wheel.playerInside == false) {
+			tunnel.flipped = !tunnel.flipped;
+			wheel.playerInside = true;
+			flashText = "TUNNEL ROTATED";
+			flashTextBegin = true;
+			Timer();
+			break;
+		}
 		if (smallKey.isInsideKey(temp) && smallKey.collected == false) {
-			std::cout << "Small key collected.";
 			smallKey.collected = true;
 			doors[18].locked = false;
+			flashText = "SMALL KEY-1 COLLECTED";
+			flashTextBegin = true;
+			Timer();
 			break;
 		}
 		if (bigKey.isInsideKey(temp) && bigKey.collected == false) {
-			std::cout << "Small key collected.";
 			bigKey.collected = true;
 			doors[2].locked = false;
+			flashText = "BIG KEY COLLECTED";
+			flashTextBegin = true;
+			Timer();
+			break;
+		}
+		if (scrollKey.isInsideKey(temp) && scrollKey.collected == false) {
+			scrollKey.collected = true;
+			doors[26].locked = false;
+			flashText = "SMALL KEY-2 COLLECTED";
+			flashTextBegin = true;
+			Timer();
+			break;
+		}
+		if (mitra.isInsideMitra(temp) && mitra.collected == false) {
+			mitra.collected = true;
+			flashText = "YOU WON, GAME OVER!!!";
+			flashTextBegin = true;
+			Timer();
 			break;
 		}
 		if (currentHex == 7) { // checks for tunnel hexagon i.e hexagon no = 7
@@ -335,7 +430,7 @@ int main(int argc, char** argv) {
 	glutInit(&argc, argv);
 	glutInitWindowSize(500, 500);
 	glutInitWindowPosition(50, 50);
-	glutCreateWindow("hexaMaze");
+	glutCreateWindow("hexaMaze 2D");
 	initGL();
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);
