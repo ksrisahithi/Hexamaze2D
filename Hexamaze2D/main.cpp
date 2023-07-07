@@ -4,6 +4,7 @@
 #include<cmath>
 #include<string>
 #include<ctime>
+#include "wtypes.h"
 
 #include "HGon.h"
 #include "Door.cpp"
@@ -106,10 +107,14 @@ float playerRotSpeed = 3.0f;
 bool keyStates[256];
 int currentHex = 25;
 int currentDoor = -1;
-int pearlsCollected = 49;
+int pearlsCollected = 0;
 bool flashTextBegin = false;
 std::string flashText;
 int flashTextMsec = 0;
+bool gameOver = false;
+bool showInstructions = true;
+int startTime = 0, minutes, seconds;
+std::string strMin = "", strSec = "";
 
 float playerPosition[2] = {
 	hgons[currentHex].location[0],
@@ -126,55 +131,134 @@ void initGL() {
 	doors[26].locked = true;
 	doors[2].locked = true;
 	tunnel.flipped = false;
+	hgons[12].designFlag = 1;
+	hgons[19].designFlag = 1;
+}
+
+float insLoc[2] = {0.0f, 0.0f};
+
+void drawText(std::string str, float pos[2]) {
+	int len = str.length();
+	glRasterPos2fv(pos);
+	for (int i = 0; i < len; i++)
+		glutBitmapCharacter(GLUT_BITMAP_9_BY_15, str[i]);
+}
+
+void drawCenteredText(std::string str, float y) {
+	RECT desktop;
+
+	const HWND hDesktop = GetDesktopWindow(); // Get a handle to the desktop window
+
+	GetWindowRect(hDesktop, &desktop);  // Get the size of screen to the variable desktop
+	int screenWidth = desktop.right;
+	int len = str.length();
+	int stringWidth = 0;
+	for (int i = 0; i < len; i++) {
+		stringWidth += glutBitmapWidth(GLUT_BITMAP_TIMES_ROMAN_24, str[i]);
+	}
+
+	float proportion = (float)stringWidth / (float)screenWidth;
+	glRasterPos2f(proportion * -1.85f, y);
+	for (int i = 0; i < str.length(); i++)
+		glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, str[i]);
 }
 
 void display() {
 	glClear(GL_COLOR_BUFFER_BIT);
-	glPushMatrix();
-	glRotatef(-playerRotation, 0.0f, 0.0f, 1.0f);
-	glTranslatef(-playerPosition[0], -playerPosition[1], 0.0f);
-
-	for (int hex = 0; hex < 27; hex++ ) {
-		if (hgons[hex].explored && hex != 7) hgons[hex].draw();
+	if (showInstructions) {
+		glColor3f(1.0f, 1.0f, 1.0f);
+		drawCenteredText("INSTRUCTIONS", 0.7f);
+		glColor3f(0.0f, 1.0f, 1.0f);
+		drawCenteredText("Collect precious stone Mitra to win the game.", 0.6f);
+		glColor3f(0.0f, 0.0f, 1.0f);
+		drawCenteredText("*********", 0.5f);
+		glColor3f(1.0f, 0.0f, 0.0f);
+		drawCenteredText("Press UP arrow key to move forword.", 0.4f);
+		drawCenteredText("Press LEFT of RIGHT keys to rotate left or right.", 0.3f);
+		drawCenteredText("Collect all 50 Magic Pearls to open door to Wheel Room.", 0.2f);
+		glColor3f(0.0f, 0.0f, 1.0f);
+		drawCenteredText("*********", 0.1f);
+		glColor3f(0.0f, 1.0f, 0.0f);
+		drawCenteredText("press 'ENTER' to continue...", 0.0f);
+		drawCenteredText("press 'ESC' to quit the game...", -0.1f);
 	}
+	else {
 
-	for (int dr = 0; dr < 27; dr++) {
-		if (doors[dr].explored) doors[dr].draw();
-	}
+		glClear(GL_COLOR_BUFFER_BIT);
+		
+		glPushMatrix();
+		glRotatef(-playerRotation, 0.0f, 0.0f, 1.0f);
+		glTranslatef(-playerPosition[0], -playerPosition[1], 0.0f);
 
-	for (int pr = 0; pr < 50; pr++) {
-		if (!pearls[pr].collected && hgons[pearls[pr].parentNum].explored) pearls[pr].draw();
-	}
+		for (int hex = 0; hex < 27; hex++) {
+			if (hgons[hex].explored && hex != 7) hgons[hex].draw();
+		}
 
-	if (smallKey.collected == false && hgons[smallKey.parentNum].explored) {
-		smallKey.draw();
-	}
+		for (int dr = 0; dr < 27; dr++) {
+			if (doors[dr].explored) doors[dr].draw();
+		}
 
-	if (bigKey.collected == false && hgons[bigKey.parentNum].explored) {
-		bigKey.draw();
-	}
+		for (int pr = 0; pr < 50; pr++) {
+			if (!pearls[pr].collected && hgons[pearls[pr].parentNum].explored) pearls[pr].draw();
+		}
 
-	if (scrollKey.collected == false && hgons[scrollKey.parentNum].explored) {
-		scrollKey.draw();
-	}
+		if (smallKey.collected == false && hgons[smallKey.parentNum].explored) {
+			smallKey.draw();
+		}
 
-	if (tunnel.explored) tunnel.draw();
+		if (bigKey.collected == false && hgons[bigKey.parentNum].explored) {
+			bigKey.draw();
+		}
 
-	if (hgons[6].explored) wheel.draw();
+		if (scrollKey.collected == false && hgons[scrollKey.parentNum].explored) {
+			scrollKey.draw();
+		}
 
-	if (hgons[0].explored && mitra.collected == false) mitra.draw();
+		if (tunnel.explored) tunnel.draw();
 
-	glPopMatrix();
-	glPointSize(5.0f);
-	glBegin(GL_POINTS); //player 
-	glColor3f(1.0f, 0.0f, 0.0f);
-	glVertex2f(0.0f, 0.0f);
-	glEnd();
-	drawScoreboard();
-	if (flashTextBegin) {
-		glRasterPos2f(-0.9f, 0.7f); // flash text position
-		for (int i = 0; i < flashText.length(); i++)
-			glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, flashText[i]);
+		if (hgons[6].explored) wheel.draw();
+
+		if (hgons[0].explored && mitra.collected == false) mitra.draw();
+
+		glPopMatrix();
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glEnable(GL_BLEND);
+		glColor4f(1.0f, 0.0f, 0.0f, 0.3f);
+		glBegin(GL_TRIANGLES);
+		glVertex2f(0.0f, 0.06f);
+		glVertex2f(0.0f, -0.03f);
+		glVertex2f(-0.03f, -0.06f);
+		glVertex2f(0.0f, 0.06f);
+		glVertex2f(0.0f, -0.03f);
+		glVertex2f(0.03f, -0.06f);
+		glEnd();
+		glDisable(GL_BLEND);
+		glPointSize(6.0f);
+		glBegin(GL_POINTS); //player 
+		glColor3f(0.0f, 0.0f, 0.0f);
+		glVertex2f(0.0f, 0.0f);
+		glEnd();
+		drawScoreboard();
+		if (flashTextBegin) {
+
+			RECT desktop;
+
+			const HWND hDesktop = GetDesktopWindow(); // Get a handle to the desktop window
+
+			GetWindowRect(hDesktop, &desktop);  // Get the size of screen to the variable desktop
+			int screenWidth = desktop.right;
+			int len = flashText.length();
+			int stringWidth = 0;
+			for (int i = 0; i < len; i++) {
+				stringWidth += glutBitmapWidth(GLUT_BITMAP_9_BY_15, flashText[i]);
+			}
+
+			float proportion = (float)stringWidth / (float)screenWidth;
+			glColor3f(0.0f, 1.0f, 0.0f);
+			glRasterPos2f(proportion * -1.85f, -0.2f);
+			for (int i = 0; i < flashText.length(); i++)
+				glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, flashText[i]);
+		}
 	}
 	glFlush();
 }
@@ -199,20 +283,37 @@ void reshape(GLsizei width, GLsizei height) {  // GLsizei for non-negative integ
 	}
 }
 
-/* Callback handler for normal-key event */
-void keyboard(unsigned char key, int x, int y) {
-	switch (key) {
-	case 27:     // ESC key
-		exit(0);
-		break;
-	}
+void Timer() {
+
+	clock_t now = clock();
+	while (clock() - now < 1000)
+		display();
+	flashTextBegin = false;
+
 }
 
-void drawText(std::string str, float pos[2]) {
-	glRasterPos2fv(pos);
-	int len = str.length();
-	for (int i = 0; i < len; i++)
-		glutBitmapCharacter(GLUT_BITMAP_9_BY_15, str[i]);
+void gameTimer(int value) {
+	flashText = "You have reach the time limit...Game Over. Better luck next time : (";
+	flashTextBegin = true;
+	Timer();
+
+	// Cleanup and exit the application
+	glutDestroyWindow(glutGetWindow());
+	exit(0);
+	//glutPostRedisplay();
+}
+
+clock_t now;
+
+/* Callback handler for normal-key event */
+void keyboard(unsigned char key, int x, int y) {
+	if (key == 27) exit(0);
+	if (showInstructions && key == 13) {
+		now = clock();
+		showInstructions = false;
+		glutTimerFunc(12 * 1000 * 60, gameTimer, 0);
+		display();
+	}
 }
 
 void drawScoreboard() {
@@ -252,18 +353,12 @@ void drawScoreboard() {
 		w = "BIG KEY COLLECTED";
 		drawText(w, pos);
 	}
+	pos[0] = -0.9f; pos[1] = 0.75f;
+
+	//int seconds = start
+	drawText("TIME REMAINING: " + strMin + ":" + strSec, pos);
 	glPopMatrix();
 }
-
-void Timer() {
-	
-	clock_t now = clock();
-	while (clock() - now < 1000)
-		display();
-	flashTextBegin = false;
-	
-}
-
 
 /* Callback handler for special keys */
 void specialKeys(int key, int x, int y) {
@@ -295,6 +390,14 @@ void specialKeys(int key, int x, int y) {
 			wheel.playerInside = true;
 			flashText = "TUNNEL ROTATED";
 			flashTextBegin = true;
+			if (tunnel.flipped) {
+				doors[8].explored = false;
+				doors[3].explored = true;
+			}
+			else {
+				doors[3].explored = false;
+				doors[8].explored = true;
+			}
 			Timer();
 			break;
 		}
@@ -327,7 +430,7 @@ void specialKeys(int key, int x, int y) {
 			flashText = "YOU WON, GAME OVER!!!";
 			flashTextBegin = true;
 			Timer();
-			break;
+			exit(0);
 		}
 		if (currentHex == 7) { // checks for tunnel hexagon i.e hexagon no = 7
 			if (tunnel.isInsideTunnel(temp)) {
@@ -426,6 +529,17 @@ void specialKeysUp(int key, int x, int y) {
 	keyStates[key] = false;
 }
 
+void idle() {
+	startTime = 12*60 - (int)((clock() - now) * 0.001);
+	minutes = startTime / 60;
+	seconds = startTime - minutes * 60;
+	char buffer[256]; sprintf_s(buffer, "%02d", minutes);
+	strMin = buffer;
+	sprintf_s(buffer, "%02d", seconds);
+	strSec = buffer;
+	glutPostRedisplay();
+}
+
 int main(int argc, char** argv) {
 	glutInit(&argc, argv);
 	glutInitWindowSize(500, 500);
@@ -435,7 +549,9 @@ int main(int argc, char** argv) {
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);
 	glutKeyboardFunc(keyboard);
+	glutIdleFunc(idle);
 	glutSpecialFunc(specialKeys);
+	glutSetCursor(GLUT_CURSOR_NONE);
 	glutMainLoop();
 	return 0;
 }

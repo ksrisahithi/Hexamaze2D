@@ -4,6 +4,7 @@
 
 extern float hWidth;
 extern float bgColor[3];
+extern float borderColor[3];
 
 class Door {
 private:
@@ -63,12 +64,37 @@ public:
 		glTranslatef(location[0], location[1], 0.0f);
 		glRotatef(rotation, 0.0f, 0.0f, 1.0f);
 		glBegin(GL_POLYGON);
-		glColor3f(bgColor[0], bgColor[1], bgColor[2]);
+		glColor3fv(bgColor);
 		glVertex2f(-doorHalfWidth, doorHalfHeight);
 		glVertex2f(doorHalfWidth, doorHalfHeight);
 		glVertex2f(doorHalfWidth, -doorHalfHeight);
 		glVertex2f(-doorHalfWidth, -doorHalfHeight);
 		glEnd();
+		if (locked) {
+			float blockSize = doorHalfWidth / 4.5f;
+			glBegin(GL_QUADS);
+			glColor3fv(borderColor);
+			glVertex2f(-3.5f*blockSize,doorHalfHeight);
+			glVertex2f(-2.5f * blockSize, doorHalfHeight);
+			glVertex2f(-2.5f * blockSize, -doorHalfHeight);
+			glVertex2f(-3.5f * blockSize, -doorHalfHeight);
+
+			glVertex2f(-1.5f * blockSize, doorHalfHeight);
+			glVertex2f(-0.5f * blockSize, doorHalfHeight);
+			glVertex2f(-0.5f * blockSize, -doorHalfHeight);
+			glVertex2f(-1.5f * blockSize, -doorHalfHeight);
+
+			glVertex2f(1.5f * blockSize, doorHalfHeight);
+			glVertex2f(0.5f * blockSize, doorHalfHeight);
+			glVertex2f(0.5f * blockSize, -doorHalfHeight);
+			glVertex2f(1.5f * blockSize, -doorHalfHeight);
+
+			glVertex2f(3.5f * blockSize, doorHalfHeight);
+			glVertex2f(2.5f * blockSize, doorHalfHeight);
+			glVertex2f(2.5f * blockSize, -doorHalfHeight);
+			glVertex2f(3.5f * blockSize, -doorHalfHeight);
+			glEnd();
+		}
 		glPopMatrix();
 	}
 };

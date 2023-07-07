@@ -36,13 +36,35 @@ public:
 
 	void draw() {
 		{
+			GLfloat angle;
+			int numSegments = 32;
 			glPushMatrix();
 			glTranslatef(location[0], location[1], 0.0f);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glEnable(GL_BLEND);
+			glColor4f(1.0f, 1.0f, 1.0f, 0.4f);
 			glBegin(GL_TRIANGLE_FAN);
-			glColor3f(0.0f, 0.0f, 1.0f);  // Blue
 			glVertex2f(0.0f, 0.0f);       // Center of circle
-			int numSegments = 32;
-			GLfloat angle;
+			for (int i = 0; i <= numSegments; i++) { // Last vertex same as first vertex
+				angle = i * 2.0f * PI / numSegments;  // 360 deg for all segments
+				glVertex2f(cos(angle) * radius * 1.5f, sin(angle) * radius * 1.5f);
+			}
+			glEnd();
+			glDisable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glEnable(GL_BLEND);
+			glColor4f(1.0f, 1.0f, 1.0f, 0.75f);
+			glBegin(GL_TRIANGLE_FAN);
+			glVertex2f(0.0f, 0.0f);       // Center of circle
+			for (int i = 0; i <= numSegments; i++) { // Last vertex same as first vertex
+				angle = i * 2.0f * PI / numSegments;  // 360 deg for all segments
+				glVertex2f(cos(angle) * radius * 1.2f, sin(angle) * radius * 1.2f);
+			}
+			glEnd();
+			glDisable(GL_BLEND);
+			glBegin(GL_TRIANGLE_FAN);
+			glColor3f(0.141f, 0.451f, 0.878f);  // Blue
+			glVertex2f(0.0f, 0.0f);       // Center of circle
 			for (int i = 0; i <= numSegments; i++) { // Last vertex same as first vertex
 				angle = i * 2.0f * PI / numSegments;  // 360 deg for all segments
 				glVertex2f(cos(angle) * radius, sin(angle) * radius);

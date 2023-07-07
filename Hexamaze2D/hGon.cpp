@@ -5,6 +5,8 @@
 extern float hWidth;
 extern float bgColor[3];
 extern float borderColor[3];
+extern float patternColor1[3];
+extern float patternColor2[3];
 
 HGon::HGon(int x, int y, int d[6]) {
 	this->location[0] = x * (1.5f * hWidth + (0.5f * wt * sqrtf(3.0f)));
@@ -49,7 +51,6 @@ bool HGon::isInsideHex(float point[2]) {
 void HGon::draw() {
 	glPushMatrix();
 	glTranslatef(location[0], location[1], 0.0f);
-
 	glBegin(GL_POLYGON);
 	glColor3f(bgColor[0], bgColor[1], bgColor[2]);
 	glVertex2f(hWidth * -0.5f, h);
@@ -59,17 +60,100 @@ void HGon::draw() {
 	glVertex2f(hWidth * -0.5f, -h);
 	glVertex2f(-hWidth, 0.0f);
 	glEnd();
-	for (int a = 0; a < 6; a++) {
+	for (int i = 0; i < 6; i++) {
 		glPushMatrix();
-		glRotatef(a * 60.0f, 0.0f, 0.0f, 1.0f);
+		glRotatef(i * 60.0f, 0.0f, 0.0f, 1.0f);
 		glBegin(GL_POLYGON);
-		glColor3f(borderColor[0], borderColor[1], borderColor[2]);
-		glVertex2f(hWidth * -0.5f * 0.8f, h * 0.8f);
-		glVertex2f(hWidth * 0.5f * 0.8f, h * 0.8f);
-		glVertex2f(hWidth * 0.5f * 0.7f, h * 0.7f);
-		glVertex2f(hWidth * -0.5f * 0.7f, h * 0.7f);
+		glColor3fv(borderColor);
+		glVertex2f(-0.5f*hWidth,h);
+		glVertex2f(0.5f * hWidth, h);
+		glVertex2f(0.45f * hWidth, h * 0.9f);
+		glVertex2f(-0.45f * hWidth, h * 0.9f);
 		glEnd();
 		glPopMatrix();
 	}
+	drawPattern();
 	glPopMatrix();
+}
+
+void HGon::drawPattern() {
+	GLfloat angle;
+	switch (designFlag)
+	{
+	case 1: 
+		for (int a = 0; a < 8; a++) 
+		{
+			glPushMatrix();
+			glRotatef(a * 45.0f, 0.0f, 0.0f, 1.0f);
+			if (a % 2 == 1) {
+				glBegin(GL_TRIANGLES);
+				glColor3fv(patternColor1);
+				glVertex2f(0.0f, 0.0f);
+				glVertex2f(-0.5f * hWidth * 0.25f, h * 0.25f);
+				glVertex2f(0.0f, 0.5f * h);
+				glColor3fv(patternColor2);
+				glVertex2f(0.0f, 0.0f);
+				glVertex2f(0.5f * hWidth * 0.25f, h * 0.25f);
+				glVertex2f(0.0f, 0.5f * h);
+				glEnd();
+			}
+			else {
+				glBegin(GL_TRIANGLES);
+				glColor3fv(patternColor1);
+				glVertex2f(0.0f, 0.0f);
+				glVertex2f(-0.5f * hWidth * 0.25f, h * 0.25f);
+				glVertex2f(0.0f, 0.75f * h);
+				glColor3fv(patternColor2);
+				glVertex2f(0.0f, 0.0f);
+				glVertex2f(0.5f * hWidth * 0.25f, h * 0.25f);
+				glVertex2f(0.0f, 0.75f * h);
+				glEnd();
+			}
+			glPopMatrix();
+		}
+		break;
+	case 0:
+		glPushMatrix();
+		glBegin(GL_TRIANGLE_FAN);
+		glColor3fv(patternColor2);
+		glVertex2f(0.0f, 0.0f);
+		for (int i = 0; i <= 32; i++) {
+			angle = i * 2.0f * 3.14f / 32.0f;
+			glVertex2f(cosf(angle) * 0.625f * h, sinf(angle) * 0.625f * h);
+		}
+		glEnd();
+		glBegin(GL_TRIANGLE_FAN);
+		glColor3fv(bgColor);
+		glVertex2f(0.0f, 0.0f);
+		for (int i = 0; i <= 32; i++) {
+			angle = i * 2.0f * 3.14f / 32.0f;
+			glVertex2f(cosf(angle) * 0.55f * h, sinf(angle) * 0.55f * h);
+		}
+		glEnd();
+		for (int a = 0; a < 6; a++)
+		{
+			glPushMatrix();
+			glRotatef(a * 60.0f, 0.0f, 0.0f, 1.0f);
+			glBegin(GL_POLYGON);
+			glColor3fv(patternColor1);
+			glVertex2f(0.0f, 0.0f);
+			glVertex2f(-0.4f * hWidth * 0.25f, h * 0.25f);
+			glVertex2f(0.0f, 0.75f * h);
+			glVertex2f(0.4f * hWidth * 0.25f, h * 0.25f);
+			glEnd();
+			glPopMatrix();
+		}
+		glBegin(GL_TRIANGLE_FAN);
+		glColor3fv(patternColor2);
+		glVertex2f(0.0f, 0.0f);
+		for (int i = 0; i <= 32; i++) {
+			angle = i * 2.0f * 3.14f / 32.0f;
+			glVertex2f(cosf(angle) * 0.02f, sinf(angle) * 0.02f);
+		}
+		glEnd();
+		glPopMatrix();
+		break;
+	default:
+		break;
+	}
 }
