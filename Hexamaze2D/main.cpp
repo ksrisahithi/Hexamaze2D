@@ -254,7 +254,7 @@ void display() {
 			}
 
 			float proportion = (float)stringWidth / (float)screenWidth;
-			glColor3f(0.0f, 1.0f, 0.0f);
+			glColor3f(0.024f, 0.302f, 0.133f);
 			glRasterPos2f(proportion * -1.85f, -0.2f);
 			for (int i = 0; i < flashText.length(); i++)
 				glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, flashText[i]);
